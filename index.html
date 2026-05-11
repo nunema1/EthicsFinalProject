@@ -4,92 +4,476 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LLM Assisted Graders</title>
+    <style>
+        /* ============ CSS VARIABLES (for theme / accessibility) ============ */
+        :root {
+            --sidebar-width: 280px;
+            --content-max-width: 70%;
+            --text-size-multiplier: 1;
+            --bg-color: #f4f6f9;
+            --text-color: #2d3436;
+            --heading-color: #1a1a2e;
+            --accent-color: #3b82f6;
+            --sidebar-bg: #1e293b;
+            --sidebar-text: #e2e8f0;
+            --sidebar-hover: #334155;
+            --sidebar-active: #3b82f6;
+            --card-bg: #ffffff;
+            --border-color: #e2e8f0;
+            --response-bg: #f8fafc;
+        }
+    
+        /* Theme classes */
+        body.theme-light {
+            --bg-color: #f4f6f9;
+            --text-color: #2d3436;
+            --heading-color: #1a1a2e;
+            --card-bg: #ffffff;
+            --border-color: #e2e8f0;
+            --response-bg: #f8fafc;
+        }
+        body.theme-dark {
+            --bg-color: #1a1a2e;
+            --text-color: #e2e8f0;
+            --heading-color: #f1f5f9;
+            --card-bg: #16213e;
+            --border-color: #334155;
+            --response-bg: #0f172a;
+        }
+        body.theme-sepia {
+            --bg-color: #f4ecd8;
+            --text-color: #5b4636;
+            --heading-color: #3c2415;
+            --card-bg: #faf3e0;
+            --border-color: #d4c5a9;
+            --response-bg: #f0e6cc;
+        }
+        body.theme-high-contrast {
+            --bg-color: #000000;
+            --text-color: #ffffff;
+            --heading-color: #ffff00;
+            --card-bg: #111111;
+            --border-color: #ffffff;
+            --response-bg: #1a1a1a;
+        }
+    
+        /* Body flex layout so sidebar + content sit side-by-side */
+        body {
+            display: flex;
+            min-height: 100vh;
+            font-size: calc(16px * var(--text-size-multiplier));
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+    
+        /* ============ SIDEBAR ============ */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: var(--sidebar-width);
+            height: 100vh;
+            background-color: var(--sidebar-bg);
+            color: var(--sidebar-text);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            transition: transform 0.3s ease;
+        }
+        .sidebar-header {
+            padding: 24px 20px 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .sidebar-header h3 {
+            color: #fff;
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin: 0;
+        }
+        .sidebar-section {
+            padding: 16px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .sidebar-section:last-child { border-bottom: none; }
+        .sidebar-section h4 {
+            padding: 0 20px 10px;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #94a3b8;
+            margin: 0;
+        }
+    
+        /* Content nav list */
+        .content-nav-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .content-nav-list li a {
+            display: block;
+            padding: 8px 20px;
+            color: #cbd5e1;
+            text-decoration: none;
+            font-size: 0.88rem;
+            border-left: 3px solid transparent;
+            transition: all 0.2s ease;
+        }
+        .content-nav-list li a:hover {
+            background-color: var(--sidebar-hover);
+            color: #fff;
+            border-left-color: rgba(255, 255, 255, 0.3);
+        }
+        .content-nav-list li li a {
+            padding-left: 36px;
+            font-size: 0.8rem;
+            color: #94a3b8;
+        }
+        .content-nav-list li li a:hover { color: #e2e8f0; }
+        .content-nav-list li a.active {
+            background-color: rgba(59, 130, 246, 0.2);
+            color: #fff;
+            border-left-color: var(--sidebar-active);
+            font-weight: 600;
+        }
+        .content-nav-list li li a.active {
+            background-color: rgba(59, 130, 246, 0.15);
+            color: #e2e8f0;
+            border-left-color: var(--sidebar-active);
+        }
+    
+        /* Accessibility controls */
+        .accessibility-controls { padding: 0 20px; }
+        .control-group { margin-bottom: 14px; }
+        .control-group label {
+            display: block;
+            font-size: 0.78rem;
+            color: #94a3b8;
+            margin-bottom: 4px;
+        }
+        .control-group input[type="range"] {
+            width: 100%;
+            accent-color: var(--sidebar-active);
+        }
+        .control-group select {
+            width: 100%;
+            padding: 6px 10px;
+            border-radius: 4px;
+            background: var(--sidebar-hover);
+            color: #e2e8f0;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            font-size: 0.82rem;
+            cursor: pointer;
+        }
+        .range-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.7rem;
+            color: #64748b;
+            margin-top: 2px;
+        }
+    
+        /* Mobile toggle button */
+        .sidebar-toggle {
+            display: none;
+            position: fixed;
+            top: 12px;
+            left: 12px;
+            z-index: 1100;
+            background: var(--sidebar-bg);
+            color: #fff;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.3rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+    
+        /* Overlay for mobile */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+        }
+    
+        /* Main content area — pushed over by sidebar */
+        .main-content-wrapper {
+            margin-left: var(--sidebar-width);
+            flex: 1;
+            max-width: calc(100% - var(--sidebar-width));
+            transition: margin-left 0.3s ease;
+        }
+        .content-inner {
+            max-width: var(--content-max-width);
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+    
+        /* ============ MOBILE ============ */
+        @media (max-width: 768px) {
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.open { transform: translateX(0); }
+            .sidebar-toggle { display: flex; align-items: center; justify-content: center; }
+            .sidebar-overlay.active { display: block; }
+            .main-content-wrapper {
+                margin-left: 0;
+                max-width: 100%;
+            }
+        }
+    </style>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <!-- Sidebar Overlay (mobile) -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-    <header>
-        <nav>
-            <ul>
-                <li><a href="#home">Home</a></li>
-                <li><a href="#sources">Sources</a></li>
-                <li><a href="#about">About Us</a></li>
-                <li><a href="#contact">Contact Us</a></li>
-            </ul>
-        </nav>
-    </header>
+    <!-- Mobile Toggle Button -->
+    <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar">☰</button>
 
-    <main>
-        <section id="home" class="hero">
-            <div class="image-placeholder">Relevant Image</div>
-            <h1>LLM Assisted Graders</h1>
-            <h2>Important Information</h2>
-            <ul>
-                <li>Introduction</li>
-                <li>Stakeholders</li>
-                <li>Have an LLM grade your work</li>
-                <li>Application of Ethical Framework</li>
-            </ul>
-            <p class="background-text">Background: paragraph...</p>
-        </section>
-
-        <section id="intro">
-            <div class="image-placeholder">Relevant Image</div>
-            <h1>Introduction</h1>
-            <h2>Who created this page?</h2>
-            <p>Paragraph content goes here...</p>
-            <h3>How relevant is the info?</h3>
-            <p>Paragraph content goes here...</p>
-        </section>
-
-        <section id="stakeholders">
-            <div class="image-placeholder">Relevant Image</div>
-            <h1>Stakeholders</h1>
-            <h2>What is a stakeholder?</h2>
-            <p>Paragraph content goes here...</p>
-            <h3>Possible Stakeholders:</h3>
-            <ul class="stakeholder-list">
-                <li>List item 1...</li>
-                <li>List item 2...</li>
-            </ul>
-        </section>
-
-        <section id="tool">
-            <div class="image-placeholder">Relevant Image</div>
-            <h1>Have an LLM Grade Your Work</h1>
-            <p>Instructions paragraph...</p>
-            
-            <div class="input-area">
-                <label for="user-work">Submit your paragraph:</label>
-                <textarea id="user-work" rows="5" placeholder="Enter your text here..."></textarea>
-                <button type="button">Submit for Grading</button>
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-section">
+            <div class="sidebar-header">
+                <h3>📑 Content</h3>
             </div>
+            <ul class="content-nav-list" id="contentNavList">
+                <!-- Populated by JavaScript -->
+            </ul>
+        </div>
 
-            <div class="output-area">
-                <label>LLM Response:</label>
-                <div class="response-box">Output for LLM response...</div>
-            </div>
-        </section>
-
-        <section id="ethics">
-            <div class="image-placeholder">Relevant Image</div>
-            <h1>Application of Ethical Frameworks</h1>
-            <div class="ethics-grid">
-                <div class="deontology">
-                    <h2>Deontology</h2>
-                    <p>Paragraph content...</p>
+        <div class="sidebar-section">
+            <h4>♿ Accessibility</h4>
+            <div class="accessibility-controls">
+                <div class="control-group">
+                    <label for="textSizeSlider">Text Size</label>
+                    <input type="range" id="textSizeSlider" min="0.7" max="1.8" step="0.05" value="1">
+                    <div class="range-labels"><span>A</span><span style="font-size:1.3em;">A</span></div>
                 </div>
-                <div class="virtue-ethics">
-                    <h2>Virtue Ethics</h2>
-                    <p>Paragraph content...</p>
+                <div class="control-group">
+                    <label for="pageWidthSlider">Page Width</label>
+                    <input type="range" id="pageWidthSlider" min="50" max="100" step="5" value="70">
+                    <div class="range-labels"><span>50%</span><span>100%</span></div>
+                </div>
+                <div class="control-group">
+                    <label for="themeSelect">Color Theme</label>
+                    <select id="themeSelect">
+                        <option value="theme-light">Light</option>
+                        <option value="theme-dark">Dark</option>
+                        <option value="theme-sepia">Sepia</option>
+                        <option value="theme-high-contrast">High Contrast</option>
+                    </select>
                 </div>
             </div>
-        </section>
-    </main>
+        </div>
+    </aside>
 
-    <footer>
-        <p>&copy; 2026 LLM Assisted Graders Project</p>
-    </footer>
+    <div class="main-content-wrapper" id="mainContentWrapper">
+        <header>
+            <nav>
+                <ul>
+                    <li><a href="#home">Home</a></li>
+                    <li><a href="#sources">Sources</a></li>
+                    <li><a href="#about">About Us</a></li>
+                    <li><a href="#contact">Contact Us</a></li>
+                </ul>
+            </nav>
+        </header>
+
+        <main>
+            <section id="home" class="hero">
+                <div class="image-placeholder">Relevant Image</div>
+                <h1>LLM Assisted Graders</h1>
+                <h2>Important Information</h2>
+                <ul>
+                    <li>Introduction</li>
+                    <li>Stakeholders</li>
+                    <li>Have an LLM grade your work</li>
+                    <li>Application of Ethical Framework</li>
+                </ul>
+                <p class="background-text">Background: paragraph...</p>
+            </section>
+
+            <section id="intro">
+                <div class="image-placeholder">Relevant Image</div>
+                <h1>Introduction</h1>
+                <h2>Who created this page?</h2>
+                <p>Paragraph content goes here...</p>
+                <h3>How relevant is the info?</h3>
+                <p>Paragraph content goes here...</p>
+            </section>
+
+            <section id="stakeholders">
+                <div class="image-placeholder">Relevant Image</div>
+                <h1>Stakeholders</h1>
+                <h2>What is a stakeholder?</h2>
+                <p>Paragraph content goes here...</p>
+                <h3>Possible Stakeholders:</h3>
+                <ul class="stakeholder-list">
+                    <li>List item 1...</li>
+                    <li>List item 2...</li>
+                </ul>
+            </section>
+
+            <section id="tool">
+                <div class="image-placeholder">Relevant Image</div>
+                <h1>Have an LLM Grade Your Work</h1>
+                <p>Instructions paragraph...</p>
+                
+                <div class="input-area">
+                    <label for="user-work">Submit your paragraph:</label>
+                    <textarea id="user-work" rows="5" placeholder="Enter your text here..."></textarea>
+                    <button type="button">Submit for Grading</button>
+                </div>
+
+                <div class="output-area">
+                    <label>LLM Response:</label>
+                    <div class="response-box">Output for LLM response...</div>
+                </div>
+            </section>
+
+            <section id="ethics">
+                <div class="image-placeholder">Relevant Image</div>
+                <h1>Application of Ethical Frameworks</h1>
+                <div class="ethics-grid">
+                    <div class="deontology">
+                        <h2>Deontology</h2>
+                        <p>Paragraph content...</p>
+                    </div>
+                    <div class="virtue-ethics">
+                        <h2>Virtue Ethics</h2>
+                        <p>Paragraph content...</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>&copy; 2026 LLM Assisted Graders Project</p>
+        </footer>
+    </div>
+
+    <script>
+        (function() {
+            const sidebar = document.getElementById('sidebar');
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            const sidebarOverlay = document.getElementById('sidebarOverlay');
+            const contentNavList = document.getElementById('contentNavList');
+            const mainContentWrapper = document.getElementById('mainContentWrapper');
+            const textSizeSlider = document.getElementById('textSizeSlider');
+            const pageWidthSlider = document.getElementById('pageWidthSlider');
+            const themeSelect = document.getElementById('themeSelect');
+            const body = document.body;
+        
+            // Build nav from all h1 and h2 inside sections
+            function buildContentNav() {
+                const sections = mainContentWrapper.querySelectorAll('section');
+                const fragment = document.createDocumentFragment();
+        
+                sections.forEach(section => {
+                    const headings = section.querySelectorAll('h1, h2');
+                    headings.forEach(heading => {
+                        if (!heading.id) {
+                            heading.id = heading.textContent.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+                        }
+                        const li = document.createElement('li');
+                        const a = document.createElement('a');
+                        a.href = '#' + heading.id;
+                        a.textContent = heading.textContent;
+                        a.dataset.target = heading.id;
+                        li.appendChild(a);
+        
+                        if (heading.tagName === 'H2') {
+                            const ul = document.createElement('ul');
+                            ul.classList.add('content-nav-list');
+                            ul.appendChild(li);
+                            fragment.appendChild(ul);
+                        } else {
+                            fragment.appendChild(li);
+                        }
+                    });
+                });
+        
+                contentNavList.innerHTML = '';
+                contentNavList.appendChild(fragment);
+        
+                contentNavList.querySelectorAll('a').forEach(link => {
+                    link.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        const target = document.getElementById(this.dataset.target);
+                        if (target) {
+                            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                            if (window.innerWidth <= 768) closeSidebar();
+                        }
+                    });
+                });
+            }
+        
+            // Scroll spy
+            function updateActiveNavLink() {
+                const navLinks = contentNavList.querySelectorAll('a');
+                if (!navLinks.length) return;
+                let currentActive = null;
+                navLinks.forEach(link => {
+                    const target = document.getElementById(link.dataset.target);
+                    if (target && target.getBoundingClientRect().top <= 120) {
+                        currentActive = link;
+                    }
+                });
+                navLinks.forEach(l => l.classList.remove('active'));
+                if (currentActive) currentActive.classList.add('active');
+                else if (navLinks.length) navLinks[0].classList.add('active');
+            }
+        
+            // Mobile toggle
+            function openSidebar() {
+                sidebar.classList.add('open');
+                sidebarOverlay.classList.add('active');
+                sidebarToggle.textContent = '✕';
+            }
+            function closeSidebar() {
+                sidebar.classList.remove('open');
+                sidebarOverlay.classList.remove('active');
+                sidebarToggle.textContent = '☰';
+            }
+            sidebarToggle.addEventListener('click', () => {
+                sidebar.classList.contains('open') ? closeSidebar() : openSidebar();
+            });
+            sidebarOverlay.addEventListener('click', closeSidebar);
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && sidebar.classList.contains('open')) closeSidebar();
+            });
+        
+            // Accessibility controls
+            textSizeSlider.addEventListener('input', function() {
+                body.style.setProperty('--text-size-multiplier', this.value);
+            });
+            pageWidthSlider.addEventListener('input', function() {
+                body.style.setProperty('--content-max-width', this.value + '%');
+            });
+            themeSelect.addEventListener('change', function() {
+                body.classList.remove('theme-light', 'theme-dark', 'theme-sepia', 'theme-high-contrast');
+                body.classList.add(this.value);
+            });
+        
+            // Scroll listener (throttled)
+            let scrollTimeout;
+            window.addEventListener('scroll', () => {
+                if (scrollTimeout) return;
+                scrollTimeout = setTimeout(() => { scrollTimeout = null; updateActiveNavLink(); }, 100);
+            }, { passive: true });
+        
+            // Init
+            buildContentNav();
+            updateActiveNavLink();
+        })();
+    </script>
 
 </body>
 </html>
