@@ -466,3 +466,15 @@ select:focus-visible,
 .contact-item a:hover {
     text-decoration: underline;
 }
+
+
+/* PHOTO STUFF */
+
+.team-photo {
+    width: 100%;
+    max-width: 400px;
+    height: auto;
+    border-radius: 8px;
+    display: block;
+    margin: 0 auto 20px;
+}
