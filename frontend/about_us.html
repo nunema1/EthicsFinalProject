@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LLM Assisted Graders - About Us</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Sidebar Overlay (mobile) -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- Mobile Toggle Button -->
+    <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar">☰</button>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-section">
+            <div class="sidebar-header">
+                <h3>📑 Content</h3>
+            </div>
+            <ul class="content-nav-list" id="contentNavList">
+                <!-- Populated by JavaScript -->
+            </ul>
+        </div>
+
+        <div class="sidebar-section">
+            <h4>♿ Accessibility</h4>
+            <div class="accessibility-controls">
+                <div class="control-group">
+                    <label for="textSizeSlider">Text Size</label>
+                    <input type="range" id="textSizeSlider" min="0.7" max="1.8" step="0.05" value="1">
+                    <div class="range-labels"><span>A</span><span style="font-size:1.3em;">A</span></div>
+                </div>
+                <div class="control-group">
+                    <label for="pageWidthSlider">Page Width</label>
+                    <input type="range" id="pageWidthSlider" min="50" max="100" step="5" value="70">
+                    <div class="range-labels"><span>50%</span><span>100%</span></div>
+                </div>
+                <div class="control-group">
+                    <label for="themeSelect">Color Theme</label>
+                    <select id="themeSelect">
+                        <option value="theme-light">Light</option>
+                        <option value="theme-dark">Dark</option>
+                        <option value="theme-sepia">Sepia</option>
+                        <option value="theme-high-contrast">High Contrast</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- ============ MAIN CONTENT ============ -->
+    <div class="main-content-wrapper" id="mainContentWrapper">
+        <header class="top-nav">
+            <nav>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="sources.html">Sources</a></li>
+                    <li><a href="about_us.html">About Us</a></li>
+                    <li><a href="contact_us.html">Contact Us</a></li>
+                </ul>
+            </nav>
+        </header>
+
+        <div class="content-inner">
+            <main>
+                <section id="about">
+                    <div class="image-placeholder">Relevant Image</div>
+                    <h1>About Us</h1>
+                    <h2>Our Team</h2>
+                    <p>Paragraph content about the team goes here...</p>
+                    <h2>Our Mission</h2>
+                    <p>Paragraph content about the mission goes here...</p>
+                    <h2>Why LLM Grading Matters</h2>
+                    <p>Paragraph content about the importance of LLM grading goes here...</p>
+                </section>
+            </main>
+
+            <footer>
+                <p>&copy; 2026 LLM Assisted Graders Project</p>
+            </footer>
+        </div>
+    </div>
+
+    <!-- ============ SCRIPTS ============ -->
+    <script>
+    (function() {
+        const sidebar = document.getElementById('sidebar');
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+        const contentNavList = document.getElementById('contentNavList');
+        const mainContentWrapper = document.getElementById('mainContentWrapper');
+        const textSizeSlider = document.getElementById('textSizeSlider');
+        const pageWidthSlider = document.getElementById('pageWidthSlider');
+        const themeSelect = document.getElementById('themeSelect');
+        const body = document.body;
+
+        function buildContentNav() {
+            const sections = mainContentWrapper.querySelectorAll('section');
+            const fragment = document.createDocumentFragment();
+
+            sections.forEach(section => {
+                const headings = section.querySelectorAll('h1, h2');
+                headings.forEach(heading => {
+                    if (!heading.id) {
+                        heading.id = heading.textContent.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+                    }
+                    const li = document.createElement('li');
+                    const a = document.createElement('a');
+                    a.href = '#' + heading.id;
+                    a.textContent = heading.textContent;
+                    a.dataset.target = heading.id;
+                    li.appendChild(a);
+
+                    if (heading.tagName === 'H2') {
+                        const ul = document.createElement('ul');
+                        ul.classList.add('content-nav-list');
+                        ul.appendChild(li);
+                        fragment.appendChild(ul);
+                    } else {
+                        fragment.appendChild(li);
+                    }
+                });
+            });
+
+            contentNavList.innerHTML = '';
+            contentNavList.appendChild(fragment);
+
+            contentNavList.querySelectorAll('a').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const target = document.getElementById(this.dataset.target);
+                    if (target) {
+                        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        if (window.innerWidth <= 768) closeSidebar();
+                    }
+                });
+            });
+        }
+
+        function updateActiveNavLink() {
+            const navLinks = contentNavList.querySelectorAll('a');
+            if (!navLinks.length) return;
+            let currentActive = null;
+            navLinks.forEach(link => {
+                const target = document.getElementById(link.dataset.target);
+                if (target && target.getBoundingClientRect().top <= 120) {
+                    currentActive = link;
+                }
+            });
+            navLinks.forEach(l => l.classList.remove('active'));
+            if (currentActive) currentActive.classList.add('active');
+            else if (navLinks.length) navLinks[0].classList.add('active');
+        }
+
+        function openSidebar() {
+            sidebar.classList.add('open');
+            sidebarOverlay.classList.add('active');
+            sidebarToggle.textContent = '✕';
+        }
+        function closeSidebar() {
+            sidebar.classList.remove('open');
+            sidebarOverlay.classList.remove('active');
+            sidebarToggle.textContent = '☰';
+        }
+        sidebarToggle.addEventListener('click', () => {
+            sidebar.classList.contains('open') ? closeSidebar() : openSidebar();
+        });
+        sidebarOverlay.addEventListener('click', closeSidebar);
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && sidebar.classList.contains('open')) closeSidebar();
+        });
+
+        textSizeSlider.addEventListener('input', function() {
+            body.style.setProperty('--text-size-multiplier', this.value);
+        });
+        pageWidthSlider.addEventListener('input', function() {
+            body.style.setProperty('--content-max-width', this.value + '%');
+        });
+        themeSelect.addEventListener('change', function() {
+            body.classList.remove('theme-light', 'theme-dark', 'theme-sepia', 'theme-high-contrast');
+            body.classList.add(this.value);
+        });
+
+        let scrollTimeout;
+        window.addEventListener('scroll', () => {
+            if (scrollTimeout) return;
+            scrollTimeout = setTimeout(() => { scrollTimeout = null; updateActiveNavLink(); }, 100);
+        }, { passive: true });
+
+        buildContentNav();
+        updateActiveNavLink();
+    })();
+    </script>
+
+</body>
+</html>
