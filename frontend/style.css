@@ -478,3 +478,12 @@ select:focus-visible,
     display: block;
     margin: 0 auto 20px;
 }
+
+.gemini-photo {
+    width: 100%;
+    max-width: 400px;
+    height: auto;
+    border-radius: 8px;
+    display: block;
+    margin: 0 auto 20px;
+}
