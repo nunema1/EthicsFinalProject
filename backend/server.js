@@ -4,7 +4,9 @@ const { GoogleGenerativeAI } = require("@google/generative-ai");
 require('dotenv').config();
 
 const app = express();
-app.use(cors({origin: 'https://ethicsfinalproject.onrender.com'}));
+app.use(cors({
+    origin: 'https://ethicsfinalproject.onrender.com'
+}));
 app.use(express.json()); // This allows the server to read JSON sent from your frontend
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
