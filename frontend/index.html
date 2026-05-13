@@ -51,7 +51,7 @@
     </aside>
 
     <div class="main-content-wrapper" id="mainContentWrapper">
-        <header>
+        <header class="top-nav">
             <nav>
                 <ul>
                     <li><a href="index.html">Home</a></li>
@@ -62,86 +62,89 @@
             </nav>
         </header>
 
-        <main>
-            <section id="home" class="hero">
-                <div class="image-placeholder">Relevant Image</div>
-                <h1>LLM Assisted Graders</h1>
-                <h2>Important Information</h2>
-                <ul>
-                    <li>Introduction</li>
-                    <li>Stakeholders</li>
-                    <li>Have an LLM grade your work</li>
-                    <li>Application of Ethical Framework</li>
-                </ul>
-                <p class="background-text">Background: 
-                    This study investigates the use and development of Large Language Model(LLM)'s that have been developed for the purpose of influencing and supporting grading systems at the college/university level. 
-                    If you've ever had your phone auto complete a message when texting, that was basically what an LLM does. 
-                    LLMs are really powerful pattern recognition programs that use learned patterns to predict the “correct” response. 
-                    An LLM will try to “complete” the pattern that they see. 
-                    The primary concern of this case study consists of identifying any ethical issues that may ensue from the deployment of such systems. 
-                    This involves understanding how LLM's may affect different people in a discriminatory manner, a random manner, or in an unexpected way. 
-                    The effect LLM's have against the stakeholders of this case will then be evaluated through different ethical frameworks in order to give the audience not a definite answer, 
-                    but ideas on how standard ethical frameworks might approach any issues provided from the installment of LLM assisted graders.
-                </p>
-            </section>
+        <div class="content-inner">
 
-            <section id="intro">
-                <div class="image-placeholder">Relevant Image</div>
-                <h1>Introduction</h1>
-                <h2>Who created this page?</h2>
-                <p> </p>
-                <h3>How relevant is the info?</h3>
-                <p>Paragraph content goes here...</p>
-            </section>
+            <main>
+                <section id="home" class="hero">
+                    <div class="image-placeholder">Relevant Image</div>
+                    <h1>LLM Assisted Graders</h1>
+                    <h2>Important Information</h2>
+                    <ul>
+                        <li>Introduction</li>
+                        <li>Stakeholders</li>
+                        <li>Have an LLM grade your work</li>
+                        <li>Application of Ethical Framework</li>
+                    </ul>
+                    <p class="background-text">Background: 
+                        This study investigates the use and development of Large Language Model(LLM)'s that have been developed for the purpose of influencing and supporting grading systems at the college/university level. 
+                        If you've ever had your phone auto complete a message when texting, that was basically what an LLM does. 
+                        LLMs are really powerful pattern recognition programs that use learned patterns to predict the “correct” response. 
+                        An LLM will try to “complete” the pattern that they see. 
+                        The primary concern of this case study consists of identifying any ethical issues that may ensue from the deployment of such systems. 
+                        This involves understanding how LLM's may affect different people in a discriminatory manner, a random manner, or in an unexpected way. 
+                        The effect LLM's have against the stakeholders of this case will then be evaluated through different ethical frameworks in order to give the audience not a definite answer, 
+                        but ideas on how standard ethical frameworks might approach any issues provided from the installment of LLM assisted graders.
+                    </p>
+                </section>
 
-            <section id="stakeholders">
-                <div class="image-placeholder">Relevant Image</div>
-                <h1>Stakeholders</h1>
-                <h2>What is a stakeholder?</h2>
-                <p>Paragraph content goes here...</p>
-                <h3>Possible Stakeholders:</h3>
-                <ul class="stakeholder-list">
-                    <li>List item 1...</li>
-                    <li>List item 2...</li>
-                </ul>
-            </section>
+                <section id="intro">
+                    <div class="image-placeholder">Relevant Image</div>
+                    <h1>Introduction</h1>
+                    <h2>Who created this page?</h2>
+                    <p> </p>
+                    <h3>How relevant is the info?</h3>
+                    <p>Paragraph content goes here...</p>
+                </section>
 
-            <section id="tool">
-                <div class="image-placeholder">Relevant Image</div>
-                <h1>Have an LLM Grade Your Work</h1>
-                <p>Instructions paragraph...</p>
-                
-                <div class="input-area">
-                    <label for="user-work">Submit your paragraph:</label>
-                    <textarea id="user-work" rows="5" placeholder="Enter your text here..."></textarea>
-                    <button type="button" onclick="submitForGrading()">Submit for Grading</button>
-                </div>
+                <section id="stakeholders">
+                    <div class="image-placeholder">Relevant Image</div>
+                    <h1>Stakeholders</h1>
+                    <h2>What is a stakeholder?</h2>
+                    <p>Paragraph content goes here...</p>
+                    <h3>Possible Stakeholders:</h3>
+                    <ul class="stakeholder-list">
+                        <li>List item 1...</li>
+                        <li>List item 2...</li>
+                    </ul>
+                </section>
 
-                <div class="output-area">
-                    <label>LLM Response:</label>
-                    <div class="response-box">Output for LLM response...</div>
-                </div>
-            </section>
-
-            <section id="ethics">
-                <div class="image-placeholder">Relevant Image</div>
-                <h1>Application of Ethical Frameworks</h1>
-                <div class="ethics-grid">
-                    <div class="deontology">
-                        <h2>Deontology</h2>
-                        <p>Paragraph content...</p>
+                <section id="tool">
+                    <div class="image-placeholder">Relevant Image</div>
+                    <h1>Have an LLM Grade Your Work</h1>
+                    <p>Instructions paragraph...</p>
+                    
+                    <div class="input-area">
+                        <label for="user-work">Submit your paragraph:</label>
+                        <textarea id="user-work" rows="5" placeholder="Enter your text here..."></textarea>
+                        <button type="button" onclick="submitForGrading()">Submit for Grading</button>
                     </div>
-                    <div class="virtue-ethics">
-                        <h2>Virtue Ethics</h2>
-                        <p>Paragraph content...</p>
-                    </div>
-                </div>
-            </section>
-        </main>
 
-        <footer>
-            <p>&copy; 2026 LLM Assisted Graders Project</p>
-        </footer>
+                    <div class="output-area">
+                        <label>LLM Response:</label>
+                        <div class="response-box">Output for LLM response...</div>
+                    </div>
+                </section>
+
+                <section id="ethics">
+                    <div class="image-placeholder">Relevant Image</div>
+                    <h1>Application of Ethical Frameworks</h1>
+                    <div class="ethics-grid">
+                        <div class="deontology">
+                            <h2>Deontology</h2>
+                            <p>Paragraph content...</p>
+                        </div>
+                        <div class="virtue-ethics">
+                            <h2>Virtue Ethics</h2>
+                            <p>Paragraph content...</p>
+                        </div>
+                    </div>
+                </section>
+            </main>
+
+            <footer>
+                <p>&copy; 2026 LLM Assisted Graders Project</p>
+            </footer>
+        </div>
     </div>
 
     <script>
